@@ -1,0 +1,10 @@
+{
+  "client": {
+    "name": "Customer 1",
+    "orderId": "jjhsdfkj"
+  },
+  "order": {
+    "orderStatus": "pedido recibido",
+    "active": 1
+  }
+}
