@@ -5,6 +5,7 @@ import productRoutes from "./src/routes/products/products.route.js";
 import orderRoutes from "./src/routes/orders/orders.route.js";
 import { Server } from "socket.io";
 import bodyParser from "body-parser";
+import cors from "cors"
 
 const app = express();
 const httpServer = createServer(app);
@@ -17,6 +18,7 @@ export const io = new Server(httpServer, {
 app.use(helmet());
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
+app.use(cors());
 
 
 app.use("/api", productRoutes);
