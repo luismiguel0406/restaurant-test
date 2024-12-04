@@ -1,5 +1,6 @@
-import { io } from "../..";
+
 import { createClient } from "redis";
+import { io } from "../../index.js";
 
 
 
