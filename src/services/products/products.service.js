@@ -1,4 +1,4 @@
-import { hydrateMenu } from "../../helpers/hydrateMenu.js";
+import { hydrateMenu } from "../../helpers";
 
 const baseUrl = process.env.BASE_URL;
 
