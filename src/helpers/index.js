@@ -12,6 +12,7 @@ export const hydrateMenu = (productList) => {
     ...item,
     price: Math.round((Math.random() * 1000), 2),
     imageUrl: `${imageUrl}/${item.strIngredient}.png`,
+    imageUrlSmall:`${imageUrl}/${item.strIngredient}-Small.png`,
   }));
 };
 
