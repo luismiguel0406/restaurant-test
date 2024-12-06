@@ -16,7 +16,7 @@ export const io = new Server(httpServer, {
 });
 
 app.use(helmet());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -33,10 +33,10 @@ io.on("connection", async (socket) => {
       let index = 0;
       let mlSeconds = 5000;
       let statusOrder = [
-        "Pedido Recibido",
-        "Preparando",
-        "Listo para entrega",
-        "Entregado",
+        "Order recieved",
+        "Preparing",
+        "Ready to deliver",
+        "Delivered",
       ];
 
       const interval = setInterval(() => {
