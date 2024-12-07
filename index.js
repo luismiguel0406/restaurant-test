@@ -6,6 +6,7 @@ import orderRoutes from "./src/routes/orders/orders.route.js";
 import { Server } from "socket.io";
 import bodyParser from "body-parser";
 import cors from "cors"
+import { emitEvent, getPendingEvent } from "./src/helpers/index.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -13,6 +14,9 @@ const httpServer = createServer(app);
 export const io = new Server(httpServer, {
   //to handle temporarily disconnections
   connectionStateRecovery: {},
+  cors:{
+    origin:"*"
+  }
 });
 
 app.use(helmet());
@@ -28,23 +32,7 @@ app.use("/api", orderRoutes);
 io.on("connection", async (socket) => {
   {
     console.log(`client connected: ${socket.id}`);
-
-    socket.on("new-order", async () => {
-      let index = 0;
-      let mlSeconds = 5000;
-      let statusOrder = [
-        "Order recieved",
-        "Preparing",
-        "Ready to deliver",
-        "Delivered",
-      ];
-
-      const interval = setInterval(() => {
-        io.emit("status-order", statusOrder[index]);
-        index += 1;
-        if (index >= statusOrder.length) return clearInterval(interval);
-      }, mlSeconds);
-    });
+    //await getPendingEvent(socket);
   }
 });
 
