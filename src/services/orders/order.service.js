@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { io } from "../../../index.js";
+import { emitEvent } from "../../helpers/index.js";
 
 export const postOrderService = async (order) => {
 
@@ -30,9 +30,8 @@ export const postOrderService = async (order) => {
         { name: "Delivered", color: "success" },
       ];
 
-      const interval = setInterval(() => {
-        //emitEvent(socket.id,"status-order",statusOrder[index]);
-        io.emit("status-order", { client: order.client, status:statusOrder[index] } );
+        const interval = setInterval(() => {
+        emitEvent(order.client,"status-order", { client: order.client, status:statusOrder[index] });
         index += 1;
         if (index >= statusOrder.length) return clearInterval(interval);
       }, mlSeconds);
