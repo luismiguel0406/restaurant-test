@@ -13,20 +13,20 @@ export const hydrateMenu = (productList) => {
   }));
 };
 
-export const emitEvent = async (socketClientId, event, data)=>{
+export const emitEvent = async (socketId, clientId, event, data)=>{
   
   // Get the incoming socket client
-  const socket = io.sockets.sockets.get(socketClientId);
+  const socket = io.sockets.sockets.get(socketId);
    
   if(!socket){
     // Missed events formatted.
-    const eventMissedForDisconnection = JSON.stringify({name: event, data}); 
+    const eventMissedForDisconnection = JSON.stringify({ event, data}); 
 
     if(!redisClient.isOpen){
       redisClient.connect();
     }
     // Store the info in Redis 
-    await redisClient.rPush(`${socketClientId}`, eventMissedForDisconnection);
+    await redisClient.rPush(`${clientId}`, eventMissedForDisconnection);
 
     // After finished the job release resources.
     //await redisClient.quit();
@@ -36,22 +36,22 @@ export const emitEvent = async (socketClientId, event, data)=>{
   socket.emit(event, data);
 }
 
-export const getPendingEvent = async (socket)=>{
+export const getPendingEvent = async (socket, clientId)=>{
     if(!redisClient.isOpen){
       redisClient.connect();
     }
     // Look for pending events from this socket client
-    const pendingEvents = await redisClient.lRange(`${socket.id}`, 0, -1);
+    const pendingEvents = await redisClient.lRange(`${clientId}`, 0, -1);
 
     //If no event just left
     if(pendingEvents.length === 0) return;
 
     // For every event found, send it to the client
-    pendingEvents.forEach((event)=>{
-     const {name, data} = JSON.parse(event);
-     socket.emit(name, data)
+    pendingEvents.forEach((pendingEvent)=>{
+     const {event, data} = JSON.parse(pendingEvent);
+     emitEvent(socket.id, clientId, event, data) // OR METHOD "socket.emit()"
     });
     
     // Remove keys already sent, we don't need it any more.
-    redisClient.del(`${socket.id}`);
+    redisClient.del(`${clientId}`);
 }

@@ -8,6 +8,7 @@ import bodyParser from "body-parser";
 import cors from "cors"
 import { getPendingEvent } from "./src/helpers/index.js";
 import { createClient } from "redis";
+import {v4 as uuid} from "uuid";
 
 
 const app = express();
@@ -37,11 +38,33 @@ app.use("/api", productRoutes);
 app.use("/api", orderRoutes);
 
 
-
+const clientsConnected = {};
 
 io.on("connection", async (socket) => {
     console.log(`client connected: ${socket.id}`);
-    await getPendingEvent(socket);
+
+    socket.on("register", async (clientId)=>{
+      if(!clientId || !clientsConnected[clientId]){
+        clientId = uuid();
+        socket.emit("register_successfully", clientId)
+      }else{
+        console.log(clientId);
+        await getPendingEvent(socket, clientId);
+      }
+
+      clientsConnected[clientId] = socket;
+      // new custom property
+      socket.clientId = clientId;
+
+    })
+
+    socket.on("disconnect", ()=>{
+      //if socket has property "clientId", means that was previously assigned by me
+      if(socket?.clientId){
+         delete clientsConnected[socket.clientId]
+         console.log("client disconnected:"+ socket?.clientId);
+      }
+    })
 });
 
 const port = process.env.PORT || 3000;
