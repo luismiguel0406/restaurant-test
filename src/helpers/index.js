@@ -2,8 +2,6 @@
 import { createClient } from "redis";
 import { io } from "../../index.js";
 
-
-
 export const hydrateMenu = (productList) => {
 
   const imageUrl = process.env.IMAGE_URL;

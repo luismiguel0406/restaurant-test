@@ -6,7 +6,7 @@ import orderRoutes from "./src/routes/orders/orders.route.js";
 import { Server } from "socket.io";
 import bodyParser from "body-parser";
 import cors from "cors"
-import { emitEvent, getPendingEvent } from "./src/helpers/index.js";
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -24,9 +24,14 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(cors());
 
-
+app.get("/",(_req,res)=>{
+  res.send("<h1>Api Online</h1>")
+  })
+  
 app.use("/api", productRoutes);
 app.use("/api", orderRoutes);
+
+
 
 
 io.on("connection", async (socket) => {
