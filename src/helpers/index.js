@@ -1,6 +1,5 @@
 
-import { createClient } from "redis";
-import { io } from "../../index.js";
+import { redisClient, io } from "../../index.js";
 
 export const hydrateMenu = (productList) => {
 
@@ -19,18 +18,18 @@ export const emitEvent = async (socketClientId, event, data)=>{
   // Get the incoming socket client
   const socket = io.sockets.sockets.get(socketClientId);
    
-  if(!socket.connected){
+  if(!socket){
     // Missed events formatted.
-    const eventMissedForDisconnection = JSON.stringify({name: event, data})
-    const client = await createClient()
-    .on('error', err=>console.log("Error trying to start Redis client.", err))
-    .connect(); 
+    const eventMissedForDisconnection = JSON.stringify({name: event, data}); 
 
+    if(!redisClient.isOpen){
+      redisClient.connect();
+    }
     // Store the info in Redis 
-    await client.rPush(`${socketClientId}`, eventMissedForDisconnection);
+    await redisClient.rPush(`${socketClientId}`, eventMissedForDisconnection);
 
     // After finished the job release resources.
-    await client.quit();
+    //await redisClient.quit();
     return;
   };
 
@@ -38,14 +37,14 @@ export const emitEvent = async (socketClientId, event, data)=>{
 }
 
 export const getPendingEvent = async (socket)=>{
-  
-    const client = createClient();
-
+    if(!redisClient.isOpen){
+      redisClient.connect();
+    }
     // Look for pending events from this socket client
-    const pendingEvents = await client.lRange(`${socket.id}`, 0, -1);
+    const pendingEvents = await redisClient.lRange(`${socket.id}`, 0, -1);
 
     //If no event just left
-    if(!pendingEvents) return;
+    if(pendingEvents.length === 0) return;
 
     // For every event found, send it to the client
     pendingEvents.forEach((event)=>{
@@ -54,5 +53,5 @@ export const getPendingEvent = async (socket)=>{
     });
     
     // Remove keys already sent, we don't need it any more.
-    client.del(`${socket.id}`);
+    redisClient.del(`${socket.id}`);
 }
