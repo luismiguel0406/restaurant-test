@@ -31,7 +31,7 @@ export const postOrderService = async (order) => {
       ];
 
         const interval = setInterval(() => {
-        emitEvent(order.socketId, order.clientId, "status-order", { client: order.clientId, status:statusOrder[index] });
+        emitEvent(order.socketId, order.clientId, "status-order", { clientId: order.clientId, status:statusOrder[index] });
         index += 1;
         if (index >= statusOrder.length) return clearInterval(interval);
       }, mlSeconds);

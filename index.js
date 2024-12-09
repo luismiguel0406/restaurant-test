@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get("/",(_req,res)=>{
-  res.send("<h1>Api Online</h1>")
+  res.send("<h1>Api online</h1>")
   })
 
 app.use("/api", productRoutes);
@@ -40,19 +40,23 @@ app.use("/api", orderRoutes);
 
 const clientsConnected = {};
 
+app.get("/clients-connected",(_req, res)=>{
+  res.send(clientsConnected);
+})
+
 io.on("connection", async (socket) => {
-    console.log(`client connected: ${socket.id}`);
+    console.log({ clientConnected: { socketId: socket.id } });
 
     socket.on("register", async (clientId)=>{
       if(!clientId || !clientsConnected[clientId]){
         clientId = uuid();
         socket.emit("register_successfully", clientId)
       }else{
-        console.log(clientId);
+        console.log({ clientReconnected: { socketId: socket.id, clientId } });
         await getPendingEvent(socket, clientId);
       }
 
-      clientsConnected[clientId] = socket;
+      clientsConnected[clientId] = socket.id;
       // new custom property
       socket.clientId = clientId;
 
@@ -62,7 +66,12 @@ io.on("connection", async (socket) => {
       //if socket has property "clientId", means that was previously assigned by me
       if(socket?.clientId){
          delete clientsConnected[socket.clientId]
-         console.log("client disconnected:"+ socket?.clientId);
+         console.log({
+           clientDisconnected: {
+             socketId: socket.id,
+             clientId: socket.clientId,
+           },
+         });
       }
     })
 });
