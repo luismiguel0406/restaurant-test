@@ -22,7 +22,9 @@ export const io = new Server(httpServer, {
   }
 });
 
-export const redisClient = createClient()
+export const redisClient = createClient({
+  url: process.env.REDIS_URL
+})
 .on('error', err=>console.log("Error trying to start Redis client.", err))
 
 app.use(helmet());
@@ -76,7 +78,7 @@ io.on("connection", async (socket) => {
     })
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 httpServer.listen(port, () => {
   console.log("Running at: " + port);

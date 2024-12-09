@@ -23,7 +23,7 @@ export const emitEvent = async (socketId, clientId, event, data)=>{
     const eventMissedForDisconnection = JSON.stringify({ event, data}); 
 
     if(!redisClient.isOpen){
-      redisClient.connect();
+     await redisClient.connect();
     }
     // Store the info in Redis 
     await redisClient.rPush(`${clientId}`, eventMissedForDisconnection);
@@ -38,7 +38,7 @@ export const emitEvent = async (socketId, clientId, event, data)=>{
 
 export const getPendingEvent = async (socket, clientId)=>{
     if(!redisClient.isOpen){
-      redisClient.connect();
+      await redisClient.connect();
     }
     // Look for pending events from this socket client
     const pendingEvents = await redisClient.lRange(`${clientId}`, 0, -1);
@@ -53,5 +53,5 @@ export const getPendingEvent = async (socket, clientId)=>{
     });
     
     // Remove keys already sent, we don't need it any more.
-    redisClient.del(`${clientId}`);
+   await redisClient.del(`${clientId}`);
 }
