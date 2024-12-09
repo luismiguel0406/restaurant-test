@@ -22,9 +22,7 @@ export const io = new Server(httpServer, {
   }
 });
 
-export const redisClient = createClient({
-  url: process.env.REDIS_URL
-})
+export const redisClient = createClient({url:process.env.REDIS_URL})
 .on('error', err=>console.log("Error trying to start Redis client.", err))
 
 app.use(helmet());
@@ -50,9 +48,9 @@ io.on("connection", async (socket) => {
     console.log({ clientConnected: { socketId: socket.id } });
 
     socket.on("register", async (clientId)=>{
-      if(!clientId || !clientsConnected[clientId]){
-        clientId = uuid();
-        socket.emit("register_successfully", clientId)
+      if(!clientId){
+        let generatedClientId = uuid();
+        socket.emit("register_successfully", generatedClientId)
       }else{
         console.log({ clientReconnected: { socketId: socket.id, clientId } });
         await getPendingEvent(socket, clientId);
